@@ -160,38 +160,44 @@ void GridDraw(){
 }
 //=====================================================================
 void DrawBot(){
-int RobotXpixelPos=0;
-int RobotYpixelPos=0;
-if(CurrentPosCol==0){
-RobotXpixelPos=ScreenWidth/12;
-}
-else{
-RobotXpixelPos=(2*CurrentPosCol+1)*ScreenWidth/12;
-}
-if(CurrentPosRow==0){
-RobotYpixelPos=ScreenHeight/8;
-}
-else{
-RobotYpixelPos=(2*CurrentPosRow+1)*ScreenHeight/8;
-}
-	switch(RobotDirection){
-	case 0: displayStringAt(RobotXpixelPos,RobotYpixelPos,"^");
-	break; // Facing North
-	case 1: displayStringAt(RobotXpixelPos,RobotYpixelPos,">");
-	break; // Facing East
-	case 2: displayStringAt(RobotXpixelPos,RobotYpixelPos,"V");
-	break; // Facing South
-	case 3: displayStringAt(RobotXpixelPos,RobotYpixelPos,"<");
-	break; // Facing West
-	default: break;
+	int RobotXpixelPos=0;
+	int RobotYpixelPos=0;
+	
+	if (CurrentPosCol==0){
+		RobotXpixelPos=ScreenWidth/12;
+	}
+	else{
+		RobotXpixelPos=(2*CurrentPosCol+1)*ScreenWidth/12;
+	}
+	
+	if (CurrentPosRow==0){
+		RobotYpixelPos=ScreenHeight/8;
+	}
+	else{
+		RobotYpixelPos=(2*CurrentPosRow+1)*ScreenHeight/8;
+	}
+	
+	switch (RobotDirection){
+		case 0: displayStringAt(RobotXpixelPos,RobotYpixelPos,"^");
+		break; // Facing North
+		case 1: displayStringAt(RobotXpixelPos,RobotYpixelPos,">");
+		break; // Facing East
+		case 2: displayStringAt(RobotXpixelPos,RobotYpixelPos,"V");
+		break; // Facing South
+		case 3: displayStringAt(RobotXpixelPos,RobotYpixelPos,"<");
+		break; // Facing West
+		default: break;
 	}
 }
 
 //=====================================================================
+
+// Randomly moves the robot around
 int RandomDirection() {
     return random(4);  // Assuming random() generates random number between 0 and n-1
 }
 
+// Moves the robot based on EV3 controls
 int ManualControl () {
 	   // Check button presses
     if (getButtonPress(buttonUp)) {
@@ -207,10 +213,8 @@ int ManualControl () {
     return -1;
 }
 
-
-
 void Solver(){
-    int dir = ManualControl();
+    int dir = ManualControl(); // Change this to RandomDirection() for random movement
     int nextRow = CurrentPosRow, nextCol = CurrentPosCol;
 
     // Update nextRow and nextCol based on the direction
