@@ -42,7 +42,7 @@ task main()
 
 
 	while( (CurrentPosRow!=TargetPosRow) || (CurrentPosCol!=TargetPosCol)){
-		Solver();
+		AStarSolver();
 		GridDraw();
 		DisplayStartandEnd();
 		DrawBot();
@@ -213,7 +213,7 @@ int ManualControl () {
     return -1;
 }
 
-void Solver(){
+void BasicSolver(){
     int dir = ManualControl(); // Change this to RandomDirection() for random movement
     int nextRow = CurrentPosRow, nextCol = CurrentPosCol;
 
@@ -245,6 +245,56 @@ void Solver(){
             break;
         default:
             break;
+    }
+}
+
+void AStarSolver(){
+    // Initialize starting cell
+    Grid[StartPosRow][StartPosCol].g_cost = 0;
+    Grid[StartPosRow][StartPosCol].f_cost = Grid[StartPosRow][StartPosCol].h_cost;
+    int currentRow = StartPosRow;
+    int currentCol = StartPosCol;
+
+    while (currentRow != TargetPosRow || currentCol != TargetPosCol) {
+        Grid[currentRow][currentCol].closed = true;
+
+        // Explore neighbors (up, down, left, right)
+        int dr[] = {-1, 1, 0, 0};
+        int dc[] = {0, 0, -1, 1};
+        int min_f_cost = INT_MAX;
+        int nextRow = currentRow;
+        int nextCol = currentCol;
+
+        for (int i = 0; i < 4; ++i) {
+            int neighborRow = currentRow + dr[i];
+            int neighborCol = currentCol + dc[i];
+
+            if (neighborRow < 0 || neighborRow >= 4 || neighborCol < 0 || neighborCol >= 6)
+                continue; // Out of bounds
+
+            if (Grid[neighborRow][neighborCol].closed || Grid[neighborRow][neighborCol].NorthWall)
+                continue; // Cell is closed or has a wall
+
+            int new_g_cost = Grid[currentRow][currentCol].g_cost + 1;  // Uniform cost assumption
+
+            if (new_g_cost < Grid[neighborRow][neighborCol].g_cost) {
+                Grid[neighborRow][neighborCol].g_cost = new_g_cost;
+                Grid[neighborRow][neighborCol].f_cost = new_g_cost + Grid[neighborRow][neighborCol].h_cost;
+                Grid[neighborRow][neighborCol].parent_row = currentRow;
+                Grid[neighborRow][neighborCol].parent_col = currentCol;
+            }
+
+            // Update next cell to move to based on lowest f_cost
+            if (Grid[neighborRow][neighborCol].f_cost < min_f_cost) {
+                min_f_cost = Grid[neighborRow][neighborCol].f_cost;
+                nextRow = neighborRow;
+                nextCol = neighborCol;
+            }
+        }
+
+        // Move to the next cell with the lowest f_cost
+        currentRow = nextRow;
+        currentCol = nextCol;
     }
 }
 
