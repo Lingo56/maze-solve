@@ -40,6 +40,6 @@ https://youtu.be/GC-nBgi9r0U?si=JwNCCxTRYkcwPVJd
 - Inefficient
 - Extremely unlikely to find the fastest route. Both when finding the exit and returning back.
 
-## Recommended choice?
+## RECOMMENDED CHOICE
 
 - Probably DFS is the best choice?
