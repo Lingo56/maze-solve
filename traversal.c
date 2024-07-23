@@ -1,5 +1,9 @@
+#include "stack.c"
+
 const int ScreenHeight =127;
 const int ScreenWidth =177;
+#define MAX_ROWS 4
+#define MAX_COLS 6
 #define INT_MAX 2147483647
 #define NORTH 0
 #define EAST  1
@@ -12,12 +16,6 @@ typedef struct{
 	int EastWall;
 	int SouthWall;
 	int WestWall;
-	int g_cost;         				 // A*: Cost from start to this cell
-	int h_cost;         				 // A*: Heuristic cost (estimated cost to goal)
-	int f_cost;         				 // A*: Total cost (g_cost + h_cost)
-	bool closed;        				 // A*: Flag to indicate if cell is closed
-	int parent_row;
-	int parent_col;  // A*: Parent cell to reconstruct the path
 }Cell;
 
 Cell Grid[4][6];
@@ -27,29 +25,24 @@ int StartPosRow=0; // Starting position
 int StartPosCol=0;
 int CurrentPosRow=StartPosRow; // Starting position
 int CurrentPosCol=StartPosCol;
-int TargetPosRow=3;
-int TargetPosCol=0;
+int TargetPosRow=1;
+int TargetPosCol=5;
+
 void GridInit();
 void WallGen();
 void GridDraw();
 void DrawBot();
 void DisplayStartandEnd();
 void BasicSolver();
-void AStarSolver();
+void DFSSolver();
 
 task main()
 {
 	GridInit();
 	WallGen();
 
-
 	while( (CurrentPosRow!=TargetPosRow) || (CurrentPosCol!=TargetPosCol)){
-		BasicSolver();
-		GridDraw();
-		DisplayStartandEnd();
-		DrawBot();
-		sleep(150);
-		eraseDisplay();
+		DFSSolver();
 	}
 
 	while(true){
@@ -68,22 +61,6 @@ void GridInit(){
 			Grid[i][j].EastWall=0;
 			Grid[i][j].WestWall=0;
 			Grid[i][j].SouthWall=0;
-
-			// A* Initialization
-			Grid[i][j].g_cost = INT_MAX;  // Initialize to infinity
-			Grid[i][j].h_cost = 0;
-			Grid[i][j].f_cost = 0;
-			Grid[i][j].closed = false;
-			Grid[i][j].parent_row = -1;
-			Grid[i][j].parent_col = -1;
-		}
-	}
-
-	Grid[StartPosRow][StartPosCol].g_cost = 0;
-	// Calculate heuristic (Manhattan distance to goal) for all cells
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 6; j++) {
-			Grid[i][j].h_cost = abs(i - TargetPosRow) + abs(j - TargetPosCol);
 		}
 	}
 }
@@ -215,8 +192,6 @@ int ManualControl () {
 	return -1;
 }
 
-// TODO: Can't use A* for this assignment
-// Find exploration based algorithm that avoids retracing steps
 void BasicSolver(){
 	int dir = RandomDirection(); // Change this to RandomDirection() for random movement
 	int nextRow = CurrentPosRow, nextCol = CurrentPosCol;
@@ -250,6 +225,68 @@ void BasicSolver(){
 		default:
 			break;
 	}
+}
+
+void DFSSolver(){
+    int visited[MAX_ROWS][MAX_COLS];
+    memset(visited, 0, sizeof(visited));  // Initialize visited array
+
+    Stack stack;
+    initStack(&stack);
+
+    push(&stack, CurrentPosRow, CurrentPosCol);
+    visited[CurrentPosRow][CurrentPosCol] = 1;
+
+    while (!isEmpty(&stack)) {
+        int row, col;
+        top(&stack, &row, &col);
+
+        // Check if we have reached the target
+        if (row == TargetPosRow && col == TargetPosCol) {
+            CurrentPosRow = row;
+            CurrentPosCol = col;
+            return;
+        }
+
+        // Find the next unvisited neighbor in DFS order
+        int found = 0;
+        for (int dir = 0; dir < 4; dir++) {
+            int nextRow = row + (dir == NORTH) - (dir == SOUTH);
+            int nextCol = col + (dir == EAST) - (dir == WEST);
+
+            // Check bounds and walls
+            if (nextRow >= 0 && nextRow < MAX_ROWS &&
+                nextCol >= 0 && nextCol < MAX_COLS &&
+                !visited[nextRow][nextCol] &&
+                (dir == NORTH && !Grid[row][col].NorthWall ||
+                 dir == EAST && !Grid[row][col].EastWall ||
+                 dir == SOUTH && !Grid[row][col].SouthWall ||
+                 dir == WEST && !Grid[row][col].WestWall)) {
+                
+                // Push to stack and mark as visited
+                push(&stack, nextRow, nextCol);
+                visited[nextRow][nextCol] = 1;
+                found = 1;
+
+                // Move the robot to the next cell
+                CurrentPosRow = nextRow;
+                CurrentPosCol = nextCol;
+                
+	              GridDraw();
+								DisplayStartandEnd();
+								DrawBot();
+								sleep(1000);
+								eraseDisplay();
+                
+                break;
+            }
+        }
+
+        // If no valid moves found, backtrack by popping from stack
+        if (!found) {
+            pop(&stack);
+        }
+    }
 }
 
 //=====================================================================
