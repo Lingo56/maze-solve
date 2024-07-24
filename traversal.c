@@ -262,7 +262,7 @@ void DFSSolver(){
                  dir == EAST && !Grid[row][col].EastWall ||
                  dir == SOUTH && !Grid[row][col].SouthWall ||
                  dir == WEST && !Grid[row][col].WestWall)) {
-                
+
                 // Push to stack and mark as visited
                 push(&stack, nextRow, nextCol);
                 visited[nextRow][nextCol] = 1;
@@ -271,13 +271,7 @@ void DFSSolver(){
                 // Move the robot to the next cell
                 CurrentPosRow = nextRow;
                 CurrentPosCol = nextCol;
-                
-	              GridDraw();
-								DisplayStartandEnd();
-								DrawBot();
-								sleep(1000);
-								eraseDisplay();
-                
+
                 break;
             }
         }
@@ -285,7 +279,16 @@ void DFSSolver(){
         // If no valid moves found, backtrack by popping from stack
         if (!found) {
             pop(&stack);
+            if (!isEmpty(&stack)) {
+            	top(&stack, &CurrentPosRow, &CurrentPosCol);
+          	}
         }
+
+        GridDraw();
+				DisplayStartandEnd();
+				DrawBot();
+				sleep(250);
+				eraseDisplay();
     }
 }
 
