@@ -8,15 +8,22 @@
 #define SOUTH 2
 #define WEST  3
 
+typedef struct {
+    int row;
+    int col;
+} Parent;
+
 void BasicSolver();
 void DFSSolver();
+
+bool algorithmFinished = false;
 
 task main()
 {
 	GridInit();
 	WallGen();
 
-	while( (CurrentPosRow!=TargetPosRow) || (CurrentPosCol!=TargetPosCol)){
+	while(!algorithmFinished){
 		DFSSolver();
 	}
 
@@ -68,10 +75,16 @@ void BasicSolver(){
 		default:
 			break;
 	}
+
+	if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow))
+	{
+			algorithmFinished = true;
+	}
 }
 
 void DFSSolver(){
     int visited[MAX_ROWS][MAX_COLS];
+    Parent parent[MAX_ROWS][MAX_COLS];  // Store parent coordinates
     memset(visited, 0, sizeof(visited));  // Initialize visited array
 
     Stack stack;
@@ -79,6 +92,8 @@ void DFSSolver(){
 
     push(&stack, CurrentPosRow, CurrentPosCol);
     visited[CurrentPosRow][CurrentPosCol] = 1;
+    parent[CurrentPosRow][CurrentPosCol].row = -1;  // Start position has no parent
+    parent[CurrentPosRow][CurrentPosCol].col = -1;
 
     while (!isEmpty(&stack)) {
         int row, col;
@@ -86,9 +101,8 @@ void DFSSolver(){
 
         // Check if we have reached the target
         if (row == TargetPosRow && col == TargetPosCol) {
-            CurrentPosRow = row;
-            CurrentPosCol = col;
-            return;
+            // Path found, start backtracking
+            break;
         }
 
         // Find the next unvisited neighbor in DFS order
@@ -109,6 +123,8 @@ void DFSSolver(){
                 // Push to stack and mark as visited
                 push(&stack, nextRow, nextCol);
                 visited[nextRow][nextCol] = 1;
+                parent[nextRow][nextCol].row = row;
+                parent[nextRow][nextCol].col = col;
                 found = 1;
 
                 // Move the robot to the next cell
@@ -123,14 +139,37 @@ void DFSSolver(){
         if (!found) {
             pop(&stack);
             if (!isEmpty(&stack)) {
-            	top(&stack, &CurrentPosRow, &CurrentPosCol);
-          	}
+                top(&stack, &CurrentPosRow, &CurrentPosCol);
+            }
         }
 
         GridDraw();
-				DisplayStartandEnd();
-				DrawBot();
-				sleep(250);
-				eraseDisplay();
+        DisplayStartandEnd();
+        DrawBot();
+        sleep(250);
+        eraseDisplay();
     }
+
+    PlayTone(1000, 25);
+
+    // If we exited the loop, we have reached the target
+    // Backtrack to start using the parent matrix
+    while (CurrentPosRow != StartPosRow || CurrentPosCol != StartPosCol) {
+        int prevRow = parent[CurrentPosRow][CurrentPosCol].row;
+        int prevCol = parent[CurrentPosRow][CurrentPosCol].col;
+
+        // Move the robot to the previous cell
+        CurrentPosRow = prevRow;
+        CurrentPosCol = prevCol;
+
+        // Optional: Add a delay or visual update here if desired
+
+        GridDraw();
+        DisplayStartandEnd();
+        DrawBot();
+        sleep(250);
+        eraseDisplay();
+    }
+
+    algorithmFinished = true;
 }
