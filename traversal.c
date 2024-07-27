@@ -1,3 +1,6 @@
+#pragma config(Motor, port1, motorLeft, tmotorVex393_MC29, openLoop)
+#pragma config(Motor, port4, motorRight, tmotorVex393_MC29, openLoop)
+
 #include "stack.c"
 #include "utilities.c"
 
@@ -14,7 +17,7 @@ typedef struct {
 } Parent;
 
 void BasicSolver();
-void DFSSolver();
+void DrawProgress();
 
 bool algorithmFinished = false;
 
@@ -24,7 +27,7 @@ task main()
 	WallGen();
 
 	while(!algorithmFinished){
-		DFSSolver();
+		BasicSolver();
 	}
 
 	while(true){
@@ -46,35 +49,36 @@ void BasicSolver(){
 	int dir = RandomDirection();
 	int nextRow = CurrentPosRow, nextCol = CurrentPosCol;
 
-	// Update nextRow and nextCol based on the direction
-	switch (dir) {
-		case NORTH:
-			nextRow++;
-			if (nextRow < 4 && Grid[CurrentPosRow][CurrentPosCol].NorthWall == 0) {
-				CurrentPosRow = nextRow;
-			}
-			break;
-		case EAST:
-			nextCol++;
-			if (nextCol < 6 && Grid[CurrentPosRow][CurrentPosCol].EastWall == 0) {
-				CurrentPosCol = nextCol;
-			}
-			break;
-		case SOUTH:
-			nextRow--;
-			if (nextRow >= 0 && Grid[CurrentPosRow][CurrentPosCol].SouthWall == 0) {
-				CurrentPosRow = nextRow;
-			}
-			break;
-		case WEST:
-			nextCol--;
-			if (nextCol >= 0 && Grid[CurrentPosRow][CurrentPosCol].WestWall == 0) {
-				CurrentPosCol = nextCol;
-			}
-			break;
-		default:
-			break;
-	}
+  // Check if the move is valid before making a move
+  if (CheckWall(dir)) {
+      switch (dir) {
+          case NORTH:
+              currentPos.row++;
+              break;
+          case EAST:
+              currentPos.col++;
+              break;
+          case SOUTH:
+              currentPos.row--;
+              break;
+          case WEST:
+              currentPos.col--;
+              break;
+          default:
+              break;
+      }
+
+      // Move the robot in the chosen direction
+      MoveForward();
+  } else {
+      // Turn randomly if wall is detected
+      int turnDir = random(2);
+      if (turnDir == 0) {
+          TurnLeft();
+      } else {
+          TurnRight();
+      }
+  }
 
 	if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow))
 	{
@@ -82,94 +86,25 @@ void BasicSolver(){
 	}
 }
 
-void DFSSolver(){
-    int visited[MAX_ROWS][MAX_COLS];
-    Parent parent[MAX_ROWS][MAX_COLS];  // Store parent coordinates
-    memset(visited, 0, sizeof(visited));  // Initialize visited array
+// Move the robot forward based on current direction
+void MoveForward() {
+    // Implement the function to move forward
+    // Example: drive forward a certain distance
+}
 
-    Stack stack;
-    initStack(&stack);
+// Turn the robot left
+void TurnLeft() {
+    // Implement the function to turn left
+}
 
-    push(&stack, CurrentPosRow, CurrentPosCol);
-    visited[CurrentPosRow][CurrentPosCol] = 1;
-    parent[CurrentPosRow][CurrentPosCol].row = -1;  // Start position has no parent
-    parent[CurrentPosRow][CurrentPosCol].col = -1;
+// Turn the robot right
+void TurnRight() {
+    // Implement the function to turn right
+}
 
-    while (!isEmpty(&stack)) {
-        int row, col;
-        top(&stack, &row, &col);
-
-        // Check if we have reached the target
-        if (row == TargetPosRow && col == TargetPosCol) {
-            // Path found, start backtracking
-            break;
-        }
-
-        // Find the next unvisited neighbor in DFS order
-        int found = 0;
-        for (int dir = 0; dir < 4; dir++) {
-            int nextRow = row + (dir == NORTH) - (dir == SOUTH);
-            int nextCol = col + (dir == EAST) - (dir == WEST);
-
-            // Check bounds and walls
-            if (nextRow >= 0 && nextRow < MAX_ROWS &&
-                nextCol >= 0 && nextCol < MAX_COLS &&
-                !visited[nextRow][nextCol] &&
-                (dir == NORTH && !Grid[row][col].NorthWall ||
-                 dir == EAST && !Grid[row][col].EastWall ||
-                 dir == SOUTH && !Grid[row][col].SouthWall ||
-                 dir == WEST && !Grid[row][col].WestWall)) {
-
-                // Push to stack and mark as visited
-                push(&stack, nextRow, nextCol);
-                visited[nextRow][nextCol] = 1;
-                parent[nextRow][nextCol].row = row;
-                parent[nextRow][nextCol].col = col;
-                found = 1;
-
-                // Move the robot to the next cell
-                CurrentPosRow = nextRow;
-                CurrentPosCol = nextCol;
-
-                break;
-            }
-        }
-
-        // If no valid moves found, backtrack by popping from stack
-        if (!found) {
-            pop(&stack);
-            if (!isEmpty(&stack)) {
-                top(&stack, &CurrentPosRow, &CurrentPosCol);
-            }
-        }
-
-        GridDraw();
-        DisplayStartandEnd();
-        DrawBot();
-        sleep(250);
-        eraseDisplay();
-    }
-
-    PlayTone(1000, 25);
-
-    // If we exited the loop, we have reached the target
-    // Backtrack to start using the parent matrix
-    while (CurrentPosRow != StartPosRow || CurrentPosCol != StartPosCol) {
-        int prevRow = parent[CurrentPosRow][CurrentPosCol].row;
-        int prevCol = parent[CurrentPosRow][CurrentPosCol].col;
-
-        // Move the robot to the previous cell
-        CurrentPosRow = prevRow;
-        CurrentPosCol = prevCol;
-
-        // Optional: Add a delay or visual update here if desired
-
-        GridDraw();
-        DisplayStartandEnd();
-        DrawBot();
-        sleep(250);
-        eraseDisplay();
-    }
-
-    algorithmFinished = true;
+// Check if there is a wall in the given direction
+bool CheckWall(int direction) {
+    // Implement the function using sensors
+    // Return true if no wall detected, otherwise false
+    return true; // placeholder
 }
