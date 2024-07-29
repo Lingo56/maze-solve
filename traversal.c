@@ -4,12 +4,15 @@
 #include "stack.c"
 #include "utilities.c"
 
+#define TARGET_DISTANCE_FORWARD 500
+#define TARGET_DISTANCE_TURN 300
+#define MOTOR_SPEED 30
+
 #define MAX_ROWS 4
 #define MAX_COLS 6
-#define NORTH 0
-#define EAST  1
-#define SOUTH 2
-#define WEST  3
+#define FORWARD 0
+#define LEFT  1
+#define RIGHT  2
 
 typedef struct {
     int row;
@@ -17,7 +20,10 @@ typedef struct {
 } Parent;
 
 void BasicSolver();
-void DrawProgress();
+void MoveForward();
+void TurnLeft();
+void TurnRight();
+void CheckWall();
 
 bool algorithmFinished = false;
 
@@ -52,16 +58,13 @@ void BasicSolver(){
   // Check if the move is valid before making a move
   if (CheckWall(dir)) {
       switch (dir) {
-          case NORTH:
+          case FORWARD:
               currentPos.row++;
               break;
-          case EAST:
+          case LEFT:
               currentPos.col++;
               break;
-          case SOUTH:
-              currentPos.row--;
-              break;
-          case WEST:
+          case RIGHT:
               currentPos.col--;
               break;
           default:
@@ -88,18 +91,47 @@ void BasicSolver(){
 
 // Move the robot forward based on current direction
 void MoveForward() {
-    // Implement the function to move forward
-    // Example: drive forward a certain distance
+    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
+		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
+
+		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE_FORWARD)//while encoderB is less than 720
+		{
+			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
+			motor[motorRight] = MOTOR_SPEED;//turn on motorC at 50% power
+		}
+
+		motor[motorLeft] = 0; //Turn off motorB
+		motor[motorRight] = 0; //Turn off motorC
 }
 
 // Turn the robot left
 void TurnLeft() {
-    // Implement the function to turn left
+    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
+		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
+
+		while(nMotorEncoder[motorRight] < TARGET_DISTANCE)//while encoderB is less than 720
+		{
+			motor[motorLeft] = -MOTOR_SPEED;//turn on motorB at 50% power
+			motor[motorRight] = MOTOR_SPEED;//turn on motorC at 50% power
+		}
+
+		motor[motorLeft] = 0; //Turn off motorB
+		motor[motorRight] = 0; //Turn off motorC
 }
 
 // Turn the robot right
 void TurnRight() {
-    // Implement the function to turn right
+    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
+		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
+
+		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE)//while encoderB is less than 720
+		{
+			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
+			motor[motorRight] = -MOTOR_SPEED;//turn on motorC at 50% power
+		}
+
+		motor[motorLeft] = 0; //Turn off motorB
+		motor[motorRight] = 0; //Turn off motorC
 }
 
 // Check if there is a wall in the given direction
