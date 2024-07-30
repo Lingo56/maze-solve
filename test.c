@@ -16,39 +16,42 @@ task main()
 		  nMotorEncoder[motorSensor] = 0;
 			if (ScanForWall()) {
 				displayCenteredTextLine(5,"Wall Found Left: %d cm", SensorValue[ultrasonicSensor]);
+				playSound(soundBeepBeep);
 			} else {
 				displayCenteredTextLine(5,"No Wall Left");
 			}
 
-			sleep(1000);
+			sleep(400);
 
 			MoveSensorClockwise(TARGET_DISTANCE_SENSOR);
-			sleep(500);
+			sleep(250);
 			if (ScanForWall()) {
 				displayCenteredTextLine(5,"Wall Found Forward: %d cm", SensorValue[ultrasonicSensor]);
+				playSound(soundBeepBeep);
 			} else {
 				displayCenteredTextLine(5,"No Wall Forward");
 			}
-			sleep(1000);
+			sleep(400);
 
 			MoveSensorClockwise(TARGET_DISTANCE_SENSOR * 2);
-			sleep(500);
+			sleep(250);
 			if (ScanForWall()) {
 				displayCenteredTextLine(5,"Wall Found Right: %d cm", SensorValue[ultrasonicSensor]);
+				playSound(soundBeepBeep);
 			} else {
 				displayCenteredTextLine(5,"No Wall Right");
 			}
-			sleep(1000);
+			sleep(400);
 
 			displayCenteredTextLine(5,"");
 			MoveSensorDefault();
-			sleep(1000);
+			sleep(400);
 	  }
 }
 
 void MoveSensorClockwise(int target)
 {
-		while(nMotorEncoder[motorSensor] < target)
+		while(nMotorEncoder[motorSensor] <= target)
 		{
 			motor[motorSensor] = 30;
 		}
@@ -58,7 +61,7 @@ void MoveSensorClockwise(int target)
 
 void MoveSensorDefault()
 {
-		while(nMotorEncoder[motorSensor] > 0)
+		while(nMotorEncoder[motorSensor] >= 0)
 		{
 			motor[motorSensor] = -30;
 		}
