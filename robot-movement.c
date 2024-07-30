@@ -2,6 +2,11 @@
 #define TARGET_DISTANCE_TURN 215
 #define MOTOR_SPEED 25
 
+#define NORTH 0
+#define EAST  1
+#define SOUTH 2
+#define WEST  3
+
 void MoveForward();
 void TurnLeft();
 void TurnRight();
@@ -53,4 +58,20 @@ void TurnRight() {
 		motor[motorLeft] = 0; //Turn off motorB
 		motor[motorRight] = 0; //Turn off motorC
 		RobotDirection = (RobotDirection + 1) % 4; // Update direction
+}
+
+// Turn the robot 180
+void TurnAround() {
+    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
+		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
+
+		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE_TURN * 2)//while encoderB is less than 720
+		{
+			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
+			motor[motorRight] = -MOTOR_SPEED;//turn on motorC at 50% power
+		}
+
+		motor[motorLeft] = 0; //Turn off motorB
+		motor[motorRight] = 0; //Turn off motorC
+		RobotDirection = (RobotDirection + 2) % 4; // Update direction
 }

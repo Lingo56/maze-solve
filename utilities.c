@@ -16,11 +16,11 @@ Cell Grid[MAX_ROWS][MAX_COLS];
 
 // Start in the 0,0 Cell
 int StartPosRow=0; // Starting position
-int StartPosCol=0;
+int StartPosCol=5;
 int CurrentPosRow=StartPosRow; // Starting position
 int CurrentPosCol=StartPosCol;
-int TargetPosRow=1;
-int TargetPosCol=5;
+int TargetPosRow=3;
+int TargetPosCol=0;
 bool isPaused = true;
 
 void GridInit();

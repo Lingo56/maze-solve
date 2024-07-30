@@ -19,11 +19,11 @@ bool CheckWall(int direction)
     MoveSensorDefault();
 
     if (scanResult) {
-        displayCenteredTextLine(5, "Wall @ Spot %d: %d cm", direction, SensorValue[ultrasonicSensor]);
+        //displayCenteredTextLine(5, "Wall @ Spot %d: %d cm", direction, SensorValue[ultrasonicSensor]);
         playSound(soundBeepBeep);
         return(scanResult);
     } else {
-        displayCenteredTextLine(5, "No Wall @ Spot %d", direction);
+        //displayCenteredTextLine(5, "No Wall @ Spot %d", direction);
         return(scanResult);
     }
 }
