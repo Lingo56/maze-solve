@@ -8,57 +8,50 @@
 #define SENSOR_MOTOR_SPEED 90
 #define WALL_SENSOR_DISTANCE 150
 
+#define TARGET_DISTANCE_FORWARD 500
+#define TARGET_DISTANCE_TURN 215
+#define MOTOR_SPEED 5
+
 void MoveSensorClockwise(int target);
 void MoveSensorDefault();
 bool ScanForWall();
 void CheckWallInDirection(int direction);
+void MoveForward();
+void TurnLeft();
+void TurnRight();
 
 task main()
 {
-    CheckWallInDirection(1);
+    TurnLeft();
     sleep(1000);  // Pause between checks
-
-    displayCenteredTextLine(5, "");
-    MoveSensorDefault();
-    sleep(400);
 }
 
-void MoveSensorClockwise(int target)
-{
-    nMotorEncoder[motorSensor] = 0;  // Reset encoder
-    while (nMotorEncoder[motorSensor] <= target)
-    {
-        motor[motorSensor] = SENSOR_MOTOR_SPEED;
-    }
-    motor[motorSensor] = 0;  // Stop motor
+// Turn the robot left
+void TurnLeft() {
+    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
+		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
+
+		while(nMotorEncoder[motorRight] < TARGET_DISTANCE_TURN)//while encoderB is less than 720
+		{
+			motor[motorLeft] = -MOTOR_SPEED;//turn on motorB at 50% power
+			motor[motorRight] = MOTOR_SPEED;//turn on motorC at 50% power
+		}
+
+		motor[motorLeft] = 0; //Turn off motorB
+		motor[motorRight] = 0; //Turn off motorC
 }
 
-void MoveSensorDefault()
-{
-    while (nMotorEncoder[motorSensor] >= 0)
-    {
-        motor[motorSensor] = -SENSOR_MOTOR_SPEED;
-    }
+// Turn the robot right
+void TurnRight() {
+    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
+		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
 
-    motor[motorSensor] = 0;  // Stop motor
-}
+		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE_TURN)//while encoderB is less than 720
+		{
+			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
+			motor[motorRight] = -MOTOR_SPEED;//turn on motorC at 50% power
+		}
 
-bool ScanForWall()
-{
-    return SensorValue[ultrasonicSensor] < WALL_SENSOR_DISTANCE;
-}
-
-void CheckWallInDirection(int direction)
-{
-    int target = TARGET_DISTANCE_SENSOR * direction;
-
-    MoveSensorClockwise(target);
-    sleep(250);
-
-    if (ScanForWall()) {
-        displayCenteredTextLine(5, "Wall @ Spot %d: %d cm", direction, SensorValue[ultrasonicSensor]);
-        playSound(soundBeepBeep);
-    } else {
-        displayCenteredTextLine(5, "No Wall @ Spot %d", direction);
-    }
+		motor[motorLeft] = 0; //Turn off motorB
+		motor[motorRight] = 0; //Turn off motorC
 }

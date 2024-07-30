@@ -1,17 +1,20 @@
-#pragma config(Motor, port1, motorLeft, tmotorVex393_MC29, openLoop)
-#pragma config(Motor, port4, motorRight, tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  motorA,          motorSensor,   tmotorNXT, PIDControl, encoder)
+#pragma config(Motor,  motorB,          motorLeft,     tmotorEV3_Large, PIDControl)
+#pragma config(Motor,  motorD,          motorRight,    tmotorEV3_Large, PIDControl)
+#pragma config(Sensor, S2, ultrasonicSensor, sensorSONAR)
 
 #include "stack.c"
 #include "utilities.c"
+#include "sensorLogic.c"
 
 #define TARGET_DISTANCE_FORWARD 500
-#define TARGET_DISTANCE_TURN 300
-#define MOTOR_SPEED 30
+#define TARGET_DISTANCE_TURN 215
+#define MOTOR_SPEED 25
 
 #define MAX_ROWS 4
 #define MAX_COLS 6
-#define FORWARD 0
-#define LEFT  1
+#define LEFT 0
+#define FORWARD  1
 #define RIGHT  2
 
 typedef struct {
@@ -23,7 +26,6 @@ void BasicSolver();
 void MoveForward();
 void TurnLeft();
 void TurnRight();
-void CheckWall();
 
 bool algorithmFinished = false;
 
@@ -48,7 +50,7 @@ task main()
 
 // Randomly moves the robot around
 int RandomDirection() {
-	return random(4);  // Assuming random() generates random number between 0 and n-1
+	return random(2);  // Assuming random() generates random number between 0 and n-1
 }
 
 void BasicSolver(){
@@ -56,32 +58,25 @@ void BasicSolver(){
 	int nextRow = CurrentPosRow, nextCol = CurrentPosCol;
 
   // Check if the move is valid before making a move
-  if (CheckWall(dir)) {
+  if (!CheckWall(dir)) {
       switch (dir) {
           case FORWARD:
-              currentPos.row++;
+              MoveForward();
               break;
           case LEFT:
-              currentPos.col++;
+              TurnLeft();
+              MoveForward();
               break;
           case RIGHT:
-              currentPos.col--;
+              TurnRight();
+              MoveForward();
               break;
           default:
               break;
       }
-
-      // Move the robot in the chosen direction
-      MoveForward();
-  } else {
-      // Turn randomly if wall is detected
-      int turnDir = random(2);
-      if (turnDir == 0) {
-          TurnLeft();
-      } else {
-          TurnRight();
-      }
   }
+
+  sleep(2000);
 
 	if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow))
 	{
@@ -109,7 +104,7 @@ void TurnLeft() {
     nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
 		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
 
-		while(nMotorEncoder[motorRight] < TARGET_DISTANCE)//while encoderB is less than 720
+		while(nMotorEncoder[motorRight] < TARGET_DISTANCE_TURN)//while encoderB is less than 720
 		{
 			motor[motorLeft] = -MOTOR_SPEED;//turn on motorB at 50% power
 			motor[motorRight] = MOTOR_SPEED;//turn on motorC at 50% power
@@ -124,7 +119,7 @@ void TurnRight() {
     nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
 		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
 
-		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE)//while encoderB is less than 720
+		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE_TURN)//while encoderB is less than 720
 		{
 			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
 			motor[motorRight] = -MOTOR_SPEED;//turn on motorC at 50% power
@@ -132,11 +127,4 @@ void TurnRight() {
 
 		motor[motorLeft] = 0; //Turn off motorB
 		motor[motorRight] = 0; //Turn off motorC
-}
-
-// Check if there is a wall in the given direction
-bool CheckWall(int direction) {
-    // Implement the function using sensors
-    // Return true if no wall detected, otherwise false
-    return true; // placeholder
 }
