@@ -1,5 +1,5 @@
 #include "stack.c"
-#include "utilities.c"
+#include "virtual-utilities.c"
 
 #define MAX_ROWS 4
 #define MAX_COLS 6

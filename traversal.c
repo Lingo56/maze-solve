@@ -5,37 +5,34 @@
 
 #include "stack.c"
 #include "utilities.c"
-#include "sensorLogic.c"
+#include "sensor-logic.c"
+#include "robot-movement.c"
 
-#define TARGET_DISTANCE_FORWARD 500
-#define TARGET_DISTANCE_TURN 215
-#define MOTOR_SPEED 25
-
-#define MAX_ROWS 4
-#define MAX_COLS 6
+// Direction Codes
 #define LEFT 0
 #define FORWARD  1
 #define RIGHT  2
-
-typedef struct {
-    int row;
-    int col;
-} Parent;
+#define NORTH 0
+#define EAST  1
+#define SOUTH 2
+#define WEST  3
 
 void BasicSolver();
-void MoveForward();
-void TurnLeft();
-void TurnRight();
+void DrawProgress();
 
 bool algorithmFinished = false;
 
 task main()
 {
 	GridInit();
-	WallGen();
+  WallGen();
 
 	while(!algorithmFinished){
-		BasicSolver();
+    if (!isPaused) {
+        DrawProgress();
+        BasicSolver();
+    }
+    checkTogglePause(); // Check if middle button is pressed
 	}
 
 	while(true){
@@ -53,78 +50,111 @@ int RandomDirection() {
 	return random(2);  // Assuming random() generates random number between 0 and n-1
 }
 
-void BasicSolver(){
-	int dir = RandomDirection();
-	int nextRow = CurrentPosRow, nextCol = CurrentPosCol;
+void BasicSolver() {
+    int dir = RandomDirection();
+    bool wallDetected = CheckWall(dir);
 
-  // Check if the move is valid before making a move
-  if (!CheckWall(dir)) {
-      switch (dir) {
-          case FORWARD:
-              MoveForward();
-              break;
-          case LEFT:
-              TurnLeft();
-              MoveForward();
-              break;
-          case RIGHT:
-              TurnRight();
-              MoveForward();
-              break;
-          default:
-              break;
-      }
-  }
+    // Update grid based on current direction and wall detection
+    switch (dir) {
+        case FORWARD:
+            if (wallDetected) {
+                switch (RobotDirection) {
+                    case 0: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
+                    case 1: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
+                    case 2: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
+                    case 3: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
+                }
+            } else {
+            		switch (RobotDirection) {
+								  case 0: // North
+								      CurrentPosRow++;
+								      break;
+								  case 1: // East
+								      CurrentPosCol++;
+								      break;
+								  case 2: // South
+								      CurrentPosRow--;
+								      break;
+								  case 3: // West
+								      CurrentPosCol--;
+								      break;
+								}
 
-  sleep(2000);
+                MoveForward();
+            }
+            break;
+        case LEFT:
+            if (wallDetected) {
+                switch (RobotDirection) {
+                    case 0: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
+                    case 1: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
+                    case 2: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
+                    case 3: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
+                }
+            } else {
+                TurnLeft();
 
-	if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow))
-	{
-			algorithmFinished = true;
-	}
+                switch (RobotDirection) {
+								  case 0: // North
+								      CurrentPosRow++;
+								      break;
+								  case 1: // East
+								      CurrentPosCol++;
+								      break;
+								  case 2: // South
+								      CurrentPosRow--;
+								      break;
+								  case 3: // West
+								      CurrentPosCol--;
+								      break;
+								}
+
+                MoveForward();
+            }
+            break;
+        case RIGHT:
+            if (wallDetected) {
+                switch (RobotDirection) {
+                    case 0: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
+                    case 1: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
+                    case 2: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
+                    case 3: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
+                }
+            } else {
+                TurnRight();
+
+                switch (RobotDirection) {
+								  case 0: // North
+								      CurrentPosRow++;
+								      break;
+								  case 1: // East
+								      CurrentPosCol++;
+								      break;
+								  case 2: // South
+								      CurrentPosRow--;
+								      break;
+								  case 3: // West
+								      CurrentPosCol--;
+								      break;
+								}
+
+                MoveForward();
+            }
+            break;
+        default:
+            break;
+    }
+
+    // Check if target is reached
+    if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow)) {
+        algorithmFinished = true;
+    }
 }
 
-// Move the robot forward based on current direction
-void MoveForward() {
-    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
-		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
-
-		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE_FORWARD)//while encoderB is less than 720
-		{
-			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
-			motor[motorRight] = MOTOR_SPEED;//turn on motorC at 50% power
-		}
-
-		motor[motorLeft] = 0; //Turn off motorB
-		motor[motorRight] = 0; //Turn off motorC
-}
-
-// Turn the robot left
-void TurnLeft() {
-    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
-		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
-
-		while(nMotorEncoder[motorRight] < TARGET_DISTANCE_TURN)//while encoderB is less than 720
-		{
-			motor[motorLeft] = -MOTOR_SPEED;//turn on motorB at 50% power
-			motor[motorRight] = MOTOR_SPEED;//turn on motorC at 50% power
-		}
-
-		motor[motorLeft] = 0; //Turn off motorB
-		motor[motorRight] = 0; //Turn off motorC
-}
-
-// Turn the robot right
-void TurnRight() {
-    nMotorEncoder[motorLeft] = 0;//reset the value of encoder B to zero
-		nMotorEncoder[motorRight] = 0;//reset the value of encoder C to zero
-
-		while(nMotorEncoder[motorLeft] < TARGET_DISTANCE_TURN)//while encoderB is less than 720
-		{
-			motor[motorLeft] = MOTOR_SPEED;//turn on motorB at 50% power
-			motor[motorRight] = -MOTOR_SPEED;//turn on motorC at 50% power
-		}
-
-		motor[motorLeft] = 0; //Turn off motorB
-		motor[motorRight] = 0; //Turn off motorC
+void DrawProgress() {
+    GridDraw();
+    DisplayStartandEnd();
+    DrawBot();
+    sleep(2000);
+    eraseDisplay();
 }

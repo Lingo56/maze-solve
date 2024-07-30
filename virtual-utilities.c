@@ -1,10 +1,6 @@
 const int ScreenHeight =127;
 const int ScreenWidth =177;
 
-// Grid Size
-#define MAX_ROWS 4
-#define MAX_COLS 6
-
 typedef struct{
 	int NorthWall;
 	int EastWall;
@@ -12,7 +8,9 @@ typedef struct{
 	int WestWall;
 }Cell;
 
-Cell Grid[MAX_ROWS][MAX_COLS];
+Cell Grid[4][6];
+
+int RobotDirection=0; // 0=North, 1=East, 2=South, 3=West
 
 // Start in the 0,0 Cell
 int StartPosRow=0; // Starting position
@@ -21,19 +19,17 @@ int CurrentPosRow=StartPosRow; // Starting position
 int CurrentPosCol=StartPosCol;
 int TargetPosRow=1;
 int TargetPosCol=5;
-bool isPaused = true;
 
 void GridInit();
 void WallGen();
 void GridDraw();
 void DrawBot();
 void DisplayStartandEnd();
-void checkTogglePause();
 
 //=====================================================================
 void GridInit(){
-	for(int i=0;i<MAX_ROWS;i++){
-		for(int j=0;j<MAX_COLS;j++){
+	for(int i=0;i<4;i++){
+		for(int j=0;j<6;j++){
 			Grid[i][j].NorthWall=0;
 			Grid[i][j].EastWall=0;
 			Grid[i][j].WestWall=0;
@@ -47,17 +43,33 @@ void WallGen(){
 	int i=0;
 	int j=0;
 
-	for(i=0;i<MAX_ROWS;i++){
+	for(i=0;i<4;i++){
 		Grid[i][0].WestWall=1;
-		Grid[i][MAX_COLS - 1].EastWall=1;
+		Grid[i][6 - 1].EastWall=1;
 	}
-	for(j=0;j<MAX_COLS;j++){
+	for(j=0;j<6;j++){
 		Grid[0][j].SouthWall=1;
-		Grid[MAX_ROWS - 1][j].NorthWall=1;
+		Grid[4 - 1][j].NorthWall=1;
+	}
+
+	Grid[0][0].NorthWall =1; Grid[1][0].SouthWall =1;
+	Grid[0][1].NorthWall =1; Grid[1][1].SouthWall =1;
+	Grid[0][3].EastWall =1; Grid[0][4].WestWall =1;
+	Grid[1][2].EastWall =1; Grid[1][3].WestWall =1;
+	Grid[1][3].EastWall =1; Grid[1][4].WestWall =1;
+	Grid[1][4].EastWall =1; Grid[1][5].WestWall =1;
+	Grid[1][5].NorthWall =1; Grid[2][5].SouthWall =1;
+	Grid[3][0].EastWall =1; Grid[3][1].WestWall =1;
+	Grid[3][4].SouthWall =1; Grid[2][4].NorthWall =1;
+
+	for(j=1;j<4;j++){
+		Grid[2][j].NorthWall=1;
+		Grid[2][j].SouthWall=1;
+		Grid[3][j].SouthWall=1;
+		Grid[1][j].NorthWall=1;
 	}
 }
 
-//=====================================================================
 //=====================================================================
 void GridDraw(){
 	int XStart=0;
@@ -118,7 +130,17 @@ void DrawBot(){
 		RobotYpixelPos=(2*CurrentPosRow+1)*ScreenHeight/8;
 	}
 
-	displayStringAt(RobotXpixelPos,RobotYpixelPos,"^");
+	switch (RobotDirection){
+		case 0: displayStringAt(RobotXpixelPos,RobotYpixelPos,"^");
+			break; // Facing North
+		case 1: displayStringAt(RobotXpixelPos,RobotYpixelPos,">");
+			break; // Facing East
+		case 2: displayStringAt(RobotXpixelPos,RobotYpixelPos,"V");
+			break; // Facing South
+		case 3: displayStringAt(RobotXpixelPos,RobotYpixelPos,"<");
+			break; // Facing West
+		default: break;
+	}
 }
 
 //=====================================================================
@@ -156,13 +178,4 @@ void DisplayStartandEnd(){
 	}
 
 	displayStringAt(XpixelPos,YpixelPos,"E");
-}
-
-// Function to check the state of the middle button and toggle pause
-void checkTogglePause() {
-    // Assuming there's a function to check if the middle button is pressed
-    if (getButtonPress(buttonUp)) { // Replace with actual function to check middle button
-        isPaused = !isPaused; // Toggle pause state
-        sleep(500);
-    }
 }
