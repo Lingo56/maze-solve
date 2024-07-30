@@ -56,9 +56,9 @@ void CheckWallInDirection(int direction)
     sleep(250);
 
     if (ScanForWall()) {
-        displayCenteredTextLine(5, "Wall Found %s: %d cm", direction == 0 ? "Left" : (direction == 1 ? "Forward" : "Right"), SensorValue[ultrasonicSensor]);
+        displayCenteredTextLine(5, "Wall @ Spot %d: %d cm", direction, SensorValue[ultrasonicSensor]);
         playSound(soundBeepBeep);
     } else {
-        displayCenteredTextLine(5, "No Wall %s", direction == 0 ? "Left" : (direction == 1 ? "Forward" : "Right"));
+        displayCenteredTextLine(5, "No Wall @ Spot %d", direction);
     }
 }
