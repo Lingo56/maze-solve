@@ -18,7 +18,6 @@ typedef struct {
     int col;
 } Parent;
 
-void BasicSolver();
 void DFSSolver();
 int GetBacktrackDirection(int currRow, int currCol, int parentRow, int parentCol);
 int CalculateTurnDirection(int currentDirection, int targetDirection);
@@ -38,7 +37,7 @@ task main()
 	while(!algorithmFinished){
     if (!isPaused) {
         DrawProgress();
-        BasicSolver();
+        DFSSolver();
     }
     checkTogglePause(); // Check if middle button is pressed
 	}
@@ -51,130 +50,13 @@ task main()
 	}
 
 		while(true){
-		displayCenteredTextLine(5,"No More Moves");
-		sleep(500);
-		eraseDisplay();
+		DrawProgress();
+		displayCenteredTextLine(2,"No More Moves");
 		sleep(500);
 	}
 }
 
 //=====================================================================
-
-// Randomly moves the robot around
-int RandomDirection() {
-    return random(2);  // Assuming random() generates a random number between 0 and 1
-}
-
-bool IsWallInDirection(int direction) {
-    return CheckWall(direction);
-}
-
-void BasicSolver() {
-    // Check walls in all three possible directions
-    bool wallForward = IsWallInDirection(FORWARD);
-    bool wallLeft = IsWallInDirection(LEFT);
-    bool wallRight = IsWallInDirection(RIGHT);
-
-    // Check if walls are detected in all three directions
-    if (wallForward && wallLeft && wallRight) {
-        TurnAround();  // Function to turn around
-        return;  // Exit the function after turning around
-    }
-
-    int dir = RandomDirection();
-    bool wallDetected = IsWallInDirection(dir);
-
-    // Update grid based on current direction and wall detection
-    switch (dir) {
-        case FORWARD:
-            if (wallDetected) {
-                switch (RobotDirection) {
-                    case 0: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
-                    case 1: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
-                    case 2: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
-                    case 3: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
-                }
-            } else {
-                switch (RobotDirection) {
-                    case 0: // North
-                        CurrentPosRow++;
-                        break;
-                    case 1: // East
-                        CurrentPosCol++;
-                        break;
-                    case 2: // South
-                        CurrentPosRow--;
-                        break;
-                    case 3: // West
-                        CurrentPosCol--;
-                        break;
-                }
-                MoveForward();
-            }
-            break;
-        case LEFT:
-            if (wallDetected) {
-                switch (RobotDirection) {
-                    case 0: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
-                    case 1: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
-                    case 2: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
-                    case 3: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
-                }
-            } else {
-                TurnLeft();
-                switch (RobotDirection) {
-                    case 0: // North
-                        CurrentPosRow++;
-                        break;
-                    case 1: // East
-                        CurrentPosCol++;
-                        break;
-                    case 2: // South
-                        CurrentPosRow--;
-                        break;
-                    case 3: // West
-                        CurrentPosCol--;
-                        break;
-                }
-                MoveForward();
-            }
-            break;
-        case RIGHT:
-            if (wallDetected) {
-                switch (RobotDirection) {
-                    case 0: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
-                    case 1: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
-                    case 2: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
-                    case 3: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
-                }
-            } else {
-                TurnRight();
-                switch (RobotDirection) {
-                    case 0: // North
-                        CurrentPosRow++;
-                        break;
-                    case 1: // East
-                        CurrentPosCol++;
-                        break;
-                    case 2: // South
-                        CurrentPosRow--;
-                        break;
-                    case 3: // West
-                        CurrentPosCol--;
-                        break;
-                }
-                MoveForward();
-            }
-            break;
-        default:
-            break;
-    }
-
-    // Check if target is reached
-    if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow)) {
-        algorithmFinished = true;
-    }
-}
 
 void DFSSolver(){
     int visited[MAX_ROWS][MAX_COLS];
@@ -203,14 +85,12 @@ void DFSSolver(){
         // Find the next unvisited neighbor in DFS order
         int found = 0;
         for (int dir = 0; dir < 3; dir++) {
+        		DrawProgress();
+        		sleep(1000);
         	  bool wallDetected = CheckWall(dir);
-        	  sleep(250);
 
             int nextRow = row + (dir == NORTH) - (dir == SOUTH);
             int nextCol = col + (dir == EAST) - (dir == WEST);
-
-            displayCenteredTextLine(4, "Next Row %d", nextRow);
-    				displayCenteredTextLine(5, "Next Col %d", nextCol);
 
             switch (dir){
             	case FORWARD:
@@ -251,6 +131,7 @@ void DFSSolver(){
 		                    case 2: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
 		                    case 3: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
 		                }
+		                break;
 		            }
 		        	case LEFT:
 		        		// Check bounds and walls
@@ -263,6 +144,8 @@ void DFSSolver(){
 				                parent[nextRow][nextCol].row = row;
 				                parent[nextRow][nextCol].col = col;
 				                found = 1;
+
+				                displayCenteredTextLine(2,"No Wall");
 
 				                // Move the robot to the next cell
 				                TurnLeft();
@@ -287,11 +170,24 @@ void DFSSolver(){
 		               			break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
-		                    case 0: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
-		                    case 1: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
-		                    case 2: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
-		                    case 3: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
+		                    case 0:
+			                    Grid[CurrentPosRow][CurrentPosCol].WestWall = 1;
+			                    displayCenteredTextLine(2,"L Direction W: %d",  RobotDirection);
+			                    break;
+		                    case 1:
+		                    	Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1;
+		                      displayCenteredTextLine(3,"L Direction N: %d",  RobotDirection);
+		                    	break;
+		                    case 2:
+		                    	Grid[CurrentPosRow][CurrentPosCol].EastWall = 1;
+		                    	displayCenteredTextLine(4,"L Direction E: %d",  RobotDirection);
+		                    	break;
+		                    case 3:
+		                    	Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1;
+		                    	displayCenteredTextLine(5,"L Direction S: %d",  RobotDirection);
+		                    	break;
 		                }
+		                break;
 		            }
 		        	case RIGHT:
 		        		// Check bounds and walls
@@ -328,16 +224,28 @@ void DFSSolver(){
 		                		break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
-		                    case 0: Grid[CurrentPosRow][CurrentPosCol].EastWall = 1; break;
-		                    case 1: Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1; break;
-		                    case 2: Grid[CurrentPosRow][CurrentPosCol].WestWall = 1; break;
-		                    case 3: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
+		                    case 0:
+		                    	Grid[CurrentPosRow][CurrentPosCol].EastWall = 1;
+		                    	displayCenteredTextLine(4,"R Direction E: %d",  RobotDirection);
+		                    	break;
+		                    case 1:
+		                      Grid[CurrentPosRow][CurrentPosCol].SouthWall = 1;
+		                    	displayCenteredTextLine(5,"R Direction S: %d",  RobotDirection);
+		                    	break;
+		                    case 2:
+		                    	Grid[CurrentPosRow][CurrentPosCol].WestWall = 1;
+			                    displayCenteredTextLine(2,"R Direction W: %d",  RobotDirection);
+			                    break;
+		                    case 3:
+		                      Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1;
+		                      displayCenteredTextLine(3,"R Direction N: %d",  RobotDirection);
+		                    	break;
 		                }
+		                break;
 		            }
 		        	default:
 		        		break;
             }
-            DrawProgress();
         }
 
         // If no valid moves found, backtrack by popping from stack
@@ -406,6 +314,4 @@ void DrawProgress() {
     GridDraw();
     DisplayStartandEnd();
     DrawBot();
-    displayCenteredTextLine(2, "Current Row %d", CurrentPosRow);
-    displayCenteredTextLine(3, "Current Col %d", CurrentPosCol);
 }
