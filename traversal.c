@@ -46,7 +46,7 @@ task main()
 		DrawProgress();
 		sleep(500);
 		displayCenteredTextLine(5,"MAZE SOLVED !!");
-		sleep(500);
+		sleep(2000);
 		eraseDisplay();
 		sleep(500);
 	}
