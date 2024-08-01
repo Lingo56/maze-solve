@@ -1,5 +1,5 @@
-#define TARGET_DISTANCE_SENSOR 90
-#define SENSOR_MOTOR_SPEED 40
+#define TARGET_DISTANCE_SENSOR 91
+#define SENSOR_MOTOR_SPEED 20
 #define WALL_SENSOR_DISTANCE 150
 
 bool CheckWall(int direction);

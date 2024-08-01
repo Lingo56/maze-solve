@@ -92,22 +92,21 @@ void DFSSolver(){
 
         for (int dir = 0; dir < 3; dir++) {
         		DrawProgress();
-        		sleep(1000);
+        		sleep(500);
         	  bool wallDetected = CheckWall(dir);
 
             switch (dir){
             	case FORWARD:
-            	  if (RobotDirection == 0) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
-                if (RobotDirection == 1) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
-                if (RobotDirection == 2) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
-                if (RobotDirection == 3) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+            	  if (RobotDirection == 0) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // To South
+                if (RobotDirection == 1) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // To East
+                if (RobotDirection == 2) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // To North
+                if (RobotDirection == 3) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // To West
 
 		            // Check bounds and walls
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
-				                found = 1;
-				                foundDir = FORWARD;
-
-		                		break;
+		                found = 1;
+		                foundDir = FORWARD;
+                		break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
 		                    case 0: Grid[CurrentPosRow][CurrentPosCol].NorthWall = 1; break;
@@ -127,7 +126,6 @@ void DFSSolver(){
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
 				                foundDir = LEFT;
-
 		               			break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
@@ -151,16 +149,15 @@ void DFSSolver(){
 		                break;
 		            }
 		        	case RIGHT:
-        	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
-                if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
-                if (RobotDirection == 2) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
-                if (RobotDirection == 3) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+        	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // Go East
+                if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // Go South
+                if (RobotDirection == 2) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // Go West
+                if (RobotDirection == 3) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // Go North
 
 		        		// Check bounds and walls
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
 				                foundDir = RIGHT;
-
 		                		break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
@@ -190,13 +187,13 @@ void DFSSolver(){
 
         if (found) {
         	  DrawProgress();
-        		sleep(1000);
+        		sleep(500);
 
             switch (foundDir){
             	case FORWARD:
-            	  if (RobotDirection == 0) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+            	  if (RobotDirection == 0) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // South
                 if (RobotDirection == 1) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
-                if (RobotDirection == 2) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 2) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // North
                 if (RobotDirection == 3) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
 
 	              push(&stack, nextRow, nextCol);
@@ -204,6 +201,8 @@ void DFSSolver(){
 			          parent[nextRow][nextCol].col = col;
 		            visited[nextRow][nextCol] = 1;
 			          Grid[nextRow][nextCol].visited = true;
+
+			          DrawProgress();
 
 	              // Move the robot to the next cell
 	          		switch (RobotDirection) {
@@ -236,6 +235,8 @@ void DFSSolver(){
 		            visited[nextRow][nextCol] = 1;
 			          Grid[nextRow][nextCol].visited = true;
 
+			          DrawProgress();
+
                 // Move the robot to the next cell
                 TurnLeft();
 
@@ -258,16 +259,18 @@ void DFSSolver(){
 								turned = false;
            			break;
 		        	case RIGHT:
-        	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
-                if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
-                if (RobotDirection == 2) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
-                if (RobotDirection == 3) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+        	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // Go East
+                if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // Go South
+                if (RobotDirection == 2) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // Go West
+                if (RobotDirection == 3) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // Go North
 
 	              push(&stack, nextRow, nextCol);
 			          parent[nextRow][nextCol].row = row;
 			          parent[nextRow][nextCol].col = col;
 		            visited[nextRow][nextCol] = 1;
 			          Grid[nextRow][nextCol].visited = true;
+
+			          DrawProgress();
 
 	              // Move the robot to the next cell
 	              TurnRight();
@@ -325,11 +328,36 @@ void DFSSolver(){
 }
 
 int GetBacktrackDirection(int currRow, int currCol, int parentRow, int parentCol) {
-    if (parentRow == currRow + 1) return SOUTH;  // Moving back from North
-    if (parentRow == currRow - 1) return NORTH;  // Moving back from South
-    if (parentCol == currCol + 1) return WEST;   // Moving back from East
-    if (parentCol == currCol - 1) return EAST;   // Moving back from West
-    return -1;  // Invalid direction
+    // Calculate direction based on parent and current position
+    if (parentRow == currRow + 1) {  // Moving back from North
+        // Check if there?s a wall blocking the way
+        if (Grid[currRow][currCol].SouthWall) {
+            return -1;  // There is a wall blocking the way
+        }
+        return SOUTH;
+    }
+    if (parentRow == currRow - 1) {  // Moving back from South
+        // Check if there?s a wall blocking the way
+        if (Grid[parentRow][parentCol].NorthWall) {
+            return -1;  // There is a wall blocking the way
+        }
+        return NORTH;
+    }
+    if (parentCol == currCol + 1) {  // Moving back from East
+        // Check if there?s a wall blocking the way
+        if (Grid[currRow][currCol].EastWall) {
+            return -1;  // There is a wall blocking the way
+        }
+        return WEST;
+    }
+    if (parentCol == currCol - 1) {  // Moving back from West
+        // Check if there?s a wall blocking the way
+        if (Grid[parentRow][parentCol].WestWall) {
+            return -1;  // There is a wall blocking the way
+        }
+        return EAST;
+    }
+    return -1;  // Invalid direction or blocked
 }
 
 // Function to calculate the turn needed to align with the target direction
