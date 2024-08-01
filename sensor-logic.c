@@ -12,7 +12,7 @@ bool CheckWall(int direction)
     int target = TARGET_DISTANCE_SENSOR * direction;
 
     MoveSensorClockwise(target);
-    sleep(250);
+    sleep(100);
 
     bool scanResult = ScanForWall();
 

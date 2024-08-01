@@ -92,7 +92,7 @@ void DFSSolver(){
 
         for (int dir = 0; dir < 3; dir++) {
         		DrawProgress();
-        		sleep(500);
+        		sleep(250);
         	  bool wallDetected = CheckWall(dir);
 
             switch (dir){
@@ -118,9 +118,9 @@ void DFSSolver(){
 		            }
 		        	case LEFT:
         	      if (RobotDirection == 0) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
-                if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+                if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // To North
                 if (RobotDirection == 2) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
-                if (RobotDirection == 3) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 3) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // To South
 
 		        		// Check bounds and walls
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
@@ -187,7 +187,7 @@ void DFSSolver(){
 
         if (found) {
         	  DrawProgress();
-        		sleep(500);
+        		sleep(250);
 
             switch (foundDir){
             	case FORWARD:
@@ -321,12 +321,30 @@ void DFSSolver(){
     }
 
     playTone(1000, 25);
-    algorithmFinished = true;
+    TurnAround();
 
-        // Check if target is reached
-    if ((CurrentPosCol == TargetPosCol) && (CurrentPosRow == TargetPosRow)) {
-        mazeSolved = true;
+    // If we exited the loop, we have reached the target
+    // Backtrack to start using the parent matrix
+    while (CurrentPosRow != StartPosRow || CurrentPosCol != StartPosCol) {
+        int prevRow = parent[CurrentPosRow][CurrentPosCol].row;
+        int prevCol = parent[CurrentPosRow][CurrentPosCol].col;
+
+        int backtrackDirection = GetBacktrackDirection(CurrentPosRow, CurrentPosCol, prevRow, prevCol);
+				AlignAndMove(backtrackDirection);
+
+				// Check if target is reached
+		    if ((CurrentPosCol == StartPosRow) && (CurrentPosRow == StartPosCol)) {
+		        mazeSolved = true;
+		    }
+
+        // Move the robot to the previous cell
+        CurrentPosRow = prevRow;
+        CurrentPosCol = prevCol;
+
+        DrawProgress();
     }
+
+    algorithmFinished = true;
 }
 
 int GetBacktrackDirection(int currRow, int currCol, int parentRow, int parentCol) {
