@@ -225,9 +225,9 @@ void DFSSolver(){
 	          		break;
 		        	case LEFT:
         	      if (RobotDirection == 0) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
-                if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+                if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // South
                 if (RobotDirection == 2) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
-                if (RobotDirection == 3) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 3) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // North
 
 	              push(&stack, nextRow, nextCol);
 			          parent[nextRow][nextCol].row = row;

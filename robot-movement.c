@@ -11,7 +11,7 @@ void MoveForward();
 void TurnLeft();
 void TurnRight();
 
-int RobotDirection = 0;
+int RobotDirection = 1;
 
 // Move the robot forward based on current direction
 void MoveForward() {

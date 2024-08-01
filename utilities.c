@@ -18,7 +18,7 @@ typedef struct{
 Cell Grid[MAX_ROWS][MAX_COLS];
 
 // Start in the 0,0 Cell
-int StartPosRow=0; // Starting position
+int StartPosRow=2; // Starting position
 int StartPosCol=5;
 int CurrentPosRow=StartPosRow; // Starting position
 int CurrentPosCol=StartPosCol;
