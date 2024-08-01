@@ -39,6 +39,9 @@ task main()
         DrawProgress();
         DFSSolver();
     }
+
+    DrawProgress();
+    sleep(500);
     checkTogglePause(); // Check if middle button is pressed
 	}
 
