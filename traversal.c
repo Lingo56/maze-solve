@@ -43,6 +43,8 @@ task main()
 	}
 
 	while(mazeSolved){
+		DrawProgress();
+		sleep(500);
 		displayCenteredTextLine(5,"MAZE SOLVED !!");
 		sleep(500);
 		eraseDisplay();
@@ -332,16 +334,12 @@ void DFSSolver(){
         int backtrackDirection = GetBacktrackDirection(CurrentPosRow, CurrentPosCol, prevRow, prevCol);
 				AlignAndMove(backtrackDirection);
 
-				// Check if target is reached
-		    if ((CurrentPosCol == StartPosRow) && (CurrentPosRow == StartPosCol)) {
-		        mazeSolved = true;
-		    }
-
         // Move the robot to the previous cell
         CurrentPosRow = prevRow;
         CurrentPosCol = prevCol;
 
         DrawProgress();
+        mazeSolved = true;
     }
 
     algorithmFinished = true;
