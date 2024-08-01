@@ -87,16 +87,21 @@ void DFSSolver(){
         int found = 0;
         int foundDir = -1;
 
+	      int nextRow = row;
+	      int nextCol = col;
+
         for (int dir = 0; dir < 3; dir++) {
         		DrawProgress();
         		sleep(1000);
         	  bool wallDetected = CheckWall(dir);
 
-            int nextRow = row + (RobotDirection == NORTH) - (RobotDirection == SOUTH);
-            int nextCol = col + (RobotDirection == EAST) - (RobotDirection == WEST);
-
             switch (dir){
             	case FORWARD:
+            	  if (RobotDirection == 0) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+                if (RobotDirection == 1) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
+                if (RobotDirection == 2) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 3) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+
 		            // Check bounds and walls
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
@@ -113,6 +118,11 @@ void DFSSolver(){
 		                break;
 		            }
 		        	case LEFT:
+        	      if (RobotDirection == 0) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+                if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+                if (RobotDirection == 2) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
+                if (RobotDirection == 3) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+
 		        		// Check bounds and walls
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
@@ -141,6 +151,11 @@ void DFSSolver(){
 		                break;
 		            }
 		        	case RIGHT:
+        	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
+                if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 2) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+                if (RobotDirection == 3) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+
 		        		// Check bounds and walls
 		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
@@ -177,17 +192,19 @@ void DFSSolver(){
         	  DrawProgress();
         		sleep(1000);
 
-        		int nextRow = row + (RobotDirection == NORTH) - (RobotDirection == SOUTH);
-            int nextCol = col + (RobotDirection == EAST) - (RobotDirection == WEST);
-
-            push(&stack, nextRow, nextCol);
-	          parent[nextRow][nextCol].row = row;
-	          parent[nextRow][nextCol].col = col;
-            visited[nextRow][nextCol] = 1;
-	          Grid[nextRow][nextRow].visited = true;  // Mark the cell as visited
-
             switch (foundDir){
             	case FORWARD:
+            	  if (RobotDirection == 0) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+                if (RobotDirection == 1) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
+                if (RobotDirection == 2) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 3) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+
+	              push(&stack, nextRow, nextCol);
+			          parent[nextRow][nextCol].row = row;
+			          parent[nextRow][nextCol].col = col;
+		            visited[nextRow][nextCol] = 1;
+			          Grid[nextRow][nextCol].visited = true;
+
 	              // Move the robot to the next cell
 	          		switch (RobotDirection) {
 								  case 0: // North
@@ -208,6 +225,17 @@ void DFSSolver(){
 								turned = false;
 	          		break;
 		        	case LEFT:
+        	      if (RobotDirection == 0) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+                if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+                if (RobotDirection == 2) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
+                if (RobotDirection == 3) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+
+	              push(&stack, nextRow, nextCol);
+			          parent[nextRow][nextCol].row = row;
+			          parent[nextRow][nextCol].col = col;
+		            visited[nextRow][nextCol] = 1;
+			          Grid[nextRow][nextCol].visited = true;
+
                 // Move the robot to the next cell
                 TurnLeft();
 
@@ -230,6 +258,17 @@ void DFSSolver(){
 								turned = false;
            			break;
 		        	case RIGHT:
+        	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // East
+                if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // North
+                if (RobotDirection == 2) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
+                if (RobotDirection == 3) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // South
+
+	              push(&stack, nextRow, nextCol);
+			          parent[nextRow][nextCol].row = row;
+			          parent[nextRow][nextCol].col = col;
+		            visited[nextRow][nextCol] = 1;
+			          Grid[nextRow][nextCol].visited = true;
+
 	              // Move the robot to the next cell
 	              TurnRight();
 
@@ -256,7 +295,6 @@ void DFSSolver(){
             }
         }
 
-        // TODO: There's an issue with where this places the robot in the virtual
         // If no valid moves found, backtrack by popping from stack
         if (!found) {
         	  TurnAround();
@@ -302,7 +340,7 @@ int CalculateTurnDirection(int currentDirection, int targetDirection) {
     if (turnDirection == 1 || turnDirection == 3) {
         return (turnDirection == 1) ? RIGHT : LEFT; // Right turn if 1 step, left turn if 3 steps
     }
-    return -1;  // No turn needed (0 steps)
+    return FORWARD;  // No turn needed (0 steps)
 }
 
 // Move robot to face the target direction and update its position
