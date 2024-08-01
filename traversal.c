@@ -300,7 +300,9 @@ void DFSSolver(){
 
         // If no valid moves found, backtrack by popping from stack
         if (!found) {
-        	  TurnAround();
+        	  if (turned == false) {
+        	  	TurnAround();
+        	  }
         	  turned = true;
 
             pop(&stack);
@@ -366,7 +368,7 @@ int CalculateTurnDirection(int currentDirection, int targetDirection) {
 
     // Determine how to turn (left or right)
     if (turnDirection == 1 || turnDirection == 3) {
-        return (turnDirection == 1) ? RIGHT : LEFT; // Right turn if 1 step, left turn if 3 steps
+        return (turnDirection == 1) ? LEFT : RIGHT; // Right turn if 1 step, left turn if 3 steps
     }
     return FORWARD;  // No turn needed (0 steps)
 }
@@ -377,15 +379,15 @@ void AlignAndMove(int targetDirection) {
 
     DrawProgress();
 
-    MoveForward();
-
-		DrawProgress();
-
     if (turnDirection == RIGHT) {
         TurnRight();
     } else if (turnDirection == LEFT) {
         TurnLeft();
     }
+
+    DrawProgress();
+
+    MoveForward();
 
     DrawProgress();
 }
