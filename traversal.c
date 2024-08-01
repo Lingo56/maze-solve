@@ -68,6 +68,7 @@ void DFSSolver(){
 
     push(&stack, CurrentPosRow, CurrentPosCol);
     visited[CurrentPosRow][CurrentPosCol] = 1;
+    Grid[CurrentPosRow][CurrentPosCol].visited = true;  // Mark the cell as visited
     parent[CurrentPosRow][CurrentPosCol].row = -1;  // Start position has no parent
     parent[CurrentPosRow][CurrentPosCol].col = -1;
 
@@ -91,8 +92,8 @@ void DFSSolver(){
         		sleep(1000);
         	  bool wallDetected = CheckWall(dir);
 
-            int nextRow = row + (dir == NORTH) - (dir == SOUTH);
-            int nextCol = col + (dir == EAST) - (dir == WEST);
+            int nextRow = row + (RobotDirection == NORTH) - (RobotDirection == SOUTH);
+            int nextCol = col + (RobotDirection == EAST) - (RobotDirection == WEST);
 
             switch (dir){
             	case FORWARD:
@@ -176,19 +177,17 @@ void DFSSolver(){
         	  DrawProgress();
         		sleep(1000);
 
-        		int nextRow = row + (foundDir == NORTH) - (foundDir == SOUTH);
-            int nextCol = col + (foundDir == EAST) - (foundDir == WEST);
+        		int nextRow = row + (RobotDirection == NORTH) - (RobotDirection == SOUTH);
+            int nextCol = col + (RobotDirection == EAST) - (RobotDirection == WEST);
 
-            Grid[CurrentPosRow][CurrentPosCol].visited = true;  // Mark the cell as visited
+            push(&stack, nextRow, nextCol);
+	          parent[nextRow][nextCol].row = row;
+	          parent[nextRow][nextCol].col = col;
+            visited[nextRow][nextCol] = 1;
+	          Grid[nextRow][nextRow].visited = true;  // Mark the cell as visited
 
             switch (foundDir){
             	case FORWARD:
-		            // Push to stack and mark as visited
-	              push(&stack, nextRow, nextCol);
-	              visited[nextRow][nextCol] = 1;
-	              parent[nextRow][nextCol].row = row;
-	              parent[nextRow][nextCol].col = col;
-
 	              // Move the robot to the next cell
 	          		switch (RobotDirection) {
 								  case 0: // North
@@ -209,14 +208,6 @@ void DFSSolver(){
 								turned = false;
 	          		break;
 		        	case LEFT:
-                // Push to stack and mark as visited
-                push(&stack, nextRow, nextCol);
-                visited[nextRow][nextCol] = 1;
-                parent[nextRow][nextCol].row = row;
-                parent[nextRow][nextCol].col = col;
-
-                displayCenteredTextLine(2,"No Wall");
-
                 // Move the robot to the next cell
                 TurnLeft();
 
@@ -239,13 +230,6 @@ void DFSSolver(){
 								turned = false;
            			break;
 		        	case RIGHT:
-	              // Push to stack and mark as visited
-	              push(&stack, nextRow, nextCol);
-	              visited[nextRow][nextCol] = 1;
-	              parent[nextRow][nextCol].row = row;
-	              parent[nextRow][nextCol].col = col;
-	              found = 1;
-
 	              // Move the robot to the next cell
 	              TurnRight();
 
