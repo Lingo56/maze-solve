@@ -84,6 +84,8 @@ void DFSSolver(){
 
         // Find the next unvisited neighbor in DFS order
         int found = 0;
+        int foundDir = -1;
+
         for (int dir = 0; dir < 3; dir++) {
         		DrawProgress();
         		sleep(1000);
@@ -95,34 +97,10 @@ void DFSSolver(){
             switch (dir){
             	case FORWARD:
 		            // Check bounds and walls
-		            if (nextRow >= 0 && nextRow < MAX_ROWS &&
-		                nextCol >= 0 && nextCol < MAX_COLS &&
-		                !visited[nextRow][nextCol] && !wallDetected) {
-				                // Push to stack and mark as visited
-				                push(&stack, nextRow, nextCol);
-				                visited[nextRow][nextCol] = 1;
-				                parent[nextRow][nextCol].row = row;
-				                parent[nextRow][nextCol].col = col;
+		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
+				                foundDir = FORWARD;
 
-				                // Move the robot to the next cell
-				            		switch (RobotDirection) {
-												  case 0: // North
-												      CurrentPosRow++;
-												      break;
-												  case 1: // East
-												      CurrentPosCol++;
-												      break;
-												  case 2: // South
-												      CurrentPosRow--;
-												      break;
-												  case 3: // West
-												      CurrentPosCol--;
-												      break;
-												}
-
-				                MoveForward();
-												turned = false;
 		                		break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
@@ -135,38 +113,10 @@ void DFSSolver(){
 		            }
 		        	case LEFT:
 		        		// Check bounds and walls
-		            if (nextRow >= 0 && nextRow < MAX_ROWS &&
-		                nextCol >= 0 && nextCol < MAX_COLS &&
-		                !visited[nextRow][nextCol] && !wallDetected) {
-				                // Push to stack and mark as visited
-				                push(&stack, nextRow, nextCol);
-				                visited[nextRow][nextCol] = 1;
-				                parent[nextRow][nextCol].row = row;
-				                parent[nextRow][nextCol].col = col;
+		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
+				                foundDir = LEFT;
 
-				                displayCenteredTextLine(2,"No Wall");
-
-				                // Move the robot to the next cell
-				                TurnLeft();
-
-				            		switch (RobotDirection) {
-												  case 0: // North
-												      CurrentPosRow++;
-												      break;
-												  case 1: // East
-												      CurrentPosCol++;
-												      break;
-												  case 2: // South
-												      CurrentPosRow--;
-												      break;
-												  case 3: // West
-												      CurrentPosCol--;
-												      break;
-												}
-
-				                MoveForward();
-												turned = false;
 		               			break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
@@ -191,36 +141,10 @@ void DFSSolver(){
 		            }
 		        	case RIGHT:
 		        		// Check bounds and walls
-		            if (nextRow >= 0 && nextRow < MAX_ROWS &&
-		                nextCol >= 0 && nextCol < MAX_COLS &&
-		                !visited[nextRow][nextCol] && !wallDetected) {
-				                // Push to stack and mark as visited
-				                push(&stack, nextRow, nextCol);
-				                visited[nextRow][nextCol] = 1;
-				                parent[nextRow][nextCol].row = row;
-				                parent[nextRow][nextCol].col = col;
+		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !visited[nextRow][nextCol] && !wallDetected) {
 				                found = 1;
+				                foundDir = RIGHT;
 
-				                // Move the robot to the next cell
-				                TurnRight();
-
-				            		switch (RobotDirection) {
-												  case 0: // North
-												      CurrentPosRow++;
-												      break;
-												  case 1: // East
-												      CurrentPosCol++;
-												      break;
-												  case 2: // South
-												      CurrentPosRow--;
-												      break;
-												  case 3: // West
-												      CurrentPosCol--;
-												      break;
-												}
-
-				                MoveForward();
-												turned = false;
 		                		break;
 		            } else if (wallDetected) {
 		            		switch (RobotDirection) {
@@ -248,6 +172,107 @@ void DFSSolver(){
             }
         }
 
+        if (found) {
+        	  DrawProgress();
+        		sleep(1000);
+
+        		int nextRow = row + (foundDir == NORTH) - (foundDir == SOUTH);
+            int nextCol = col + (foundDir == EAST) - (foundDir == WEST);
+
+            Grid[CurrentPosRow][CurrentPosCol].visited = true;  // Mark the cell as visited
+
+            switch (foundDir){
+            	case FORWARD:
+		            // Push to stack and mark as visited
+	              push(&stack, nextRow, nextCol);
+	              visited[nextRow][nextCol] = 1;
+	              parent[nextRow][nextCol].row = row;
+	              parent[nextRow][nextCol].col = col;
+
+	              // Move the robot to the next cell
+	          		switch (RobotDirection) {
+								  case 0: // North
+								      CurrentPosRow++;
+								      break;
+								  case 1: // East
+								      CurrentPosCol++;
+								      break;
+								  case 2: // South
+								      CurrentPosRow--;
+								      break;
+								  case 3: // West
+								      CurrentPosCol--;
+								      break;
+								}
+
+	              MoveForward();
+								turned = false;
+	          		break;
+		        	case LEFT:
+                // Push to stack and mark as visited
+                push(&stack, nextRow, nextCol);
+                visited[nextRow][nextCol] = 1;
+                parent[nextRow][nextCol].row = row;
+                parent[nextRow][nextCol].col = col;
+
+                displayCenteredTextLine(2,"No Wall");
+
+                // Move the robot to the next cell
+                TurnLeft();
+
+            		switch (RobotDirection) {
+								  case 0: // North
+								      CurrentPosRow++;
+								      break;
+								  case 1: // East
+								      CurrentPosCol++;
+								      break;
+								  case 2: // South
+								      CurrentPosRow--;
+								      break;
+								  case 3: // West
+								      CurrentPosCol--;
+								      break;
+								}
+
+                MoveForward();
+								turned = false;
+           			break;
+		        	case RIGHT:
+	              // Push to stack and mark as visited
+	              push(&stack, nextRow, nextCol);
+	              visited[nextRow][nextCol] = 1;
+	              parent[nextRow][nextCol].row = row;
+	              parent[nextRow][nextCol].col = col;
+	              found = 1;
+
+	              // Move the robot to the next cell
+	              TurnRight();
+
+	          		switch (RobotDirection) {
+								  case 0: // North
+								      CurrentPosRow++;
+								      break;
+								  case 1: // East
+								      CurrentPosCol++;
+								      break;
+								  case 2: // South
+								      CurrentPosRow--;
+								      break;
+								  case 3: // West
+								      CurrentPosCol--;
+								      break;
+								}
+
+	              MoveForward();
+								turned = false;
+	          		break;
+		        	default:
+		        		break;
+            }
+        }
+
+        // TODO: There's an issue with where this places the robot in the virtual
         // If no valid moves found, backtrack by popping from stack
         if (!found) {
         	  TurnAround();
@@ -300,13 +325,19 @@ int CalculateTurnDirection(int currentDirection, int targetDirection) {
 void AlignAndMove(int targetDirection) {
     int turnDirection = CalculateTurnDirection(RobotDirection, targetDirection);
 
+    DrawProgress();
+
+    MoveForward();
+
+		DrawProgress();
+
     if (turnDirection == RIGHT) {
         TurnRight();
     } else if (turnDirection == LEFT) {
         TurnLeft();
     }
 
-    MoveForward();
+    DrawProgress();
 }
 
 void DrawProgress() {

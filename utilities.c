@@ -5,12 +5,15 @@ const int ScreenWidth =177;
 #define MAX_ROWS 4
 #define MAX_COLS 6
 
+#define COLOR_VISITED  gray  // Using gray as a proxy for visited cells
+
 typedef struct{
-	int NorthWall;
-	int EastWall;
-	int SouthWall;
-	int WestWall;
-}Cell;
+    int NorthWall;
+    int EastWall;
+    int SouthWall;
+    int WestWall;
+    bool visited;  // Add this line
+} Cell;
 
 Cell Grid[MAX_ROWS][MAX_COLS];
 
@@ -32,14 +35,15 @@ void checkTogglePause();
 
 //=====================================================================
 void GridInit(){
-	for(int i=0;i<MAX_ROWS;i++){
-		for(int j=0;j<MAX_COLS;j++){
-			Grid[i][j].NorthWall=0;
-			Grid[i][j].EastWall=0;
-			Grid[i][j].WestWall=0;
-			Grid[i][j].SouthWall=0;
-		}
-	}
+    for(int i=0;i<MAX_ROWS;i++){
+        for(int j=0;j<MAX_COLS;j++){
+            Grid[i][j].NorthWall=0;
+            Grid[i][j].EastWall=0;
+            Grid[i][j].WestWall=0;
+            Grid[i][j].SouthWall=0;
+            Grid[i][j].visited = false;  // Initialize visited flag
+        }
+    }
 }
 
 //=====================================================================
@@ -60,65 +64,57 @@ void WallGen(){
 //=====================================================================
 //=====================================================================
 void GridDraw(){
-	int XStart=0;
-	int YStart=0;
-	int XEnd =0;
-	int YEnd =0;
+    int XStart=0;
+    int YStart=0;
+    int XEnd=0;
+    int YEnd=0;
 
-	for(int i=0;i<4;i++){
-		for(int j=0;j<6;j++){
-			if(Grid[i][j].NorthWall==1){
-				XStart= j *ScreenWidth/6;
-				YStart=(i+1)*ScreenHeight/4;
-				XEnd =(j+1)*ScreenWidth/6;
-				YEnd =(i+1)*ScreenHeight/4;
-				drawLine(XStart,YStart,XEnd,YEnd);
-			}
-			if (Grid[i][j].EastWall==1){
-				XStart=(j+1)*ScreenWidth/6;
-				YStart=(i)*ScreenHeight/4;
-				XEnd =(j+1)*ScreenWidth/6;
-				YEnd =(i+1)*ScreenHeight/4;
-				drawLine(XStart,YStart,XEnd,YEnd);
-			}
-			if (Grid[i][j].WestWall==1){
-				XStart= j *ScreenWidth/6;
-				YStart=(i)*ScreenHeight/4;
-				XEnd =(j)*ScreenWidth/6;
-				YEnd =(i+1)*ScreenHeight/4;
-				drawLine(XStart,YStart,XEnd,YEnd);
-			}
-			if(Grid[i][j].SouthWall==1){
-				XStart= j *ScreenWidth/6;
-				YStart=(i)*ScreenHeight/4;
-				XEnd =(j+1)*ScreenWidth/6;
-				YEnd =(i)*ScreenHeight/4;
-				drawLine(XStart,YStart,XEnd,YEnd);
-			}
-		}
-	}
-}
+    for(int i=0;i<MAX_ROWS;i++){
+        for(int j=0;j<MAX_COLS;j++){
+            // Draw walls
+            if(Grid[i][j].NorthWall==1){
+                XStart= j *ScreenWidth/6;
+                YStart=(i+1)*ScreenHeight/4;
+                XEnd =(j+1)*ScreenWidth/6;
+                YEnd =(i+1)*ScreenHeight/4;
+                drawLine(XStart,YStart,XEnd,YEnd);
+            }
+            if (Grid[i][j].EastWall==1){
+                XStart=(j+1)*ScreenWidth/6;
+                YStart=(i)*ScreenHeight/4;
+                XEnd =(j+1)*ScreenWidth/6;
+                YEnd =(i+1)*ScreenHeight/4;
+                drawLine(XStart,YStart,XEnd,YEnd);
+            }
+            if (Grid[i][j].WestWall==1){
+                XStart= j *ScreenWidth/6;
+                YStart=(i)*ScreenHeight/4;
+                XEnd =(j)*ScreenWidth/6;
+                YEnd =(i+1)*ScreenHeight/4;
+                drawLine(XStart,YStart,XEnd,YEnd);
+            }
+            if(Grid[i][j].SouthWall==1){
+                XStart= j *ScreenWidth/6;
+                YStart=(i)*ScreenHeight/4;
+                XEnd =(j+1)*ScreenWidth/6;
+                YEnd =(i)*ScreenHeight/4;
+                drawLine(XStart,YStart,XEnd,YEnd);
+            }
 
-//=====================================================================
-void DrawBot(){
-	int RobotXpixelPos=0;
-	int RobotYpixelPos=0;
+            // Draw visited cells
+            if (Grid[i][j].visited) {
+                // Draw visited cell
+                XStart = j * ScreenWidth / MAX_COLS;
+                YStart = i * ScreenHeight / MAX_ROWS;
+                XEnd = (j + 1) * ScreenWidth / MAX_COLS;
+                YEnd = (i + 1) * ScreenHeight / MAX_ROWS;
+                fillRect(XStart + 6, YStart + 6, XEnd - 6, YEnd - 6);
+            }
+        }
+    }
 
-	if (CurrentPosCol==0){
-		RobotXpixelPos=ScreenWidth/12;
-	}
-	else{
-		RobotXpixelPos=(2*CurrentPosCol+1)*ScreenWidth/12;
-	}
-
-	if (CurrentPosRow==0){
-		RobotYpixelPos=ScreenHeight/8;
-	}
-	else{
-		RobotYpixelPos=(2*CurrentPosRow+1)*ScreenHeight/8;
-	}
-
-	displayStringAt(RobotXpixelPos,RobotYpixelPos,"^");
+    // Draw start and end points
+    DisplayStartandEnd();
 }
 
 //=====================================================================

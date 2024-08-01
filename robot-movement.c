@@ -75,3 +75,35 @@ void TurnAround() {
 		motor[motorRight] = 0; //Turn off motorC
 		RobotDirection = (RobotDirection + 2) % 4; // Update direction
 }
+
+//=====================================================================
+void DrawBot(){
+	int RobotXpixelPos=0;
+	int RobotYpixelPos=0;
+
+	if (CurrentPosCol==0){
+		RobotXpixelPos=ScreenWidth/12;
+	}
+	else{
+		RobotXpixelPos=(2*CurrentPosCol+1)*ScreenWidth/12;
+	}
+
+	if (CurrentPosRow==0){
+		RobotYpixelPos=ScreenHeight/8;
+	}
+	else{
+		RobotYpixelPos=(2*CurrentPosRow+1)*ScreenHeight/8;
+	}
+
+	switch (RobotDirection){
+		case NORTH: displayStringAt(RobotXpixelPos,RobotYpixelPos,"^");
+			break; // Facing North
+		case EAST: displayStringAt(RobotXpixelPos,RobotYpixelPos,">");
+			break; // Facing East
+		case SOUTH: displayStringAt(RobotXpixelPos,RobotYpixelPos,"V");
+			break; // Facing South
+		case WEST: displayStringAt(RobotXpixelPos,RobotYpixelPos,"<");
+			break; // Facing West
+		default: break;
+	}
+}
