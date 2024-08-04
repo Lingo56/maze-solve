@@ -2,8 +2,8 @@ const int ScreenHeight =127;
 const int ScreenWidth =177;
 
 // Grid Size
-#define MAX_ROWS 4
-#define MAX_COLS 6
+#define MAX_ROWS 5
+#define MAX_COLS 7
 
 #define COLOR_VISITED  gray  // Using gray as a proxy for visited cells
 
@@ -15,15 +15,15 @@ typedef struct{
     bool visited;  // Add this line
 } Cell;
 
-Cell Grid[MAX_ROWS][MAX_COLS];
+Cell Grid[4][6];
 
 // Start in the 0,0 Cell
-int StartPosRow=1; // Starting position
-int StartPosCol=2;
+int StartPosRow=0; // Starting position
+int StartPosCol=5;
 int CurrentPosRow=StartPosRow; // Starting position
 int CurrentPosCol=StartPosCol;
-int TargetPosRow=0;
-int TargetPosCol=0;
+int TargetPosRow=3;
+int TargetPosCol=1;
 bool isPaused = true;
 
 void GridInit();
@@ -35,8 +35,8 @@ void checkTogglePause();
 
 //=====================================================================
 void GridInit(){
-    for(int i=0;i<MAX_ROWS;i++){
-        for(int j=0;j<MAX_COLS;j++){
+    for(int i=0;i<4;i++){
+        for(int j=0;j<6;j++){
             Grid[i][j].NorthWall=0;
             Grid[i][j].EastWall=0;
             Grid[i][j].WestWall=0;
@@ -51,13 +51,13 @@ void WallGen(){
 	int i=0;
 	int j=0;
 
-	for(i=0;i<MAX_ROWS;i++){
+	for(i=0;i<4;i++){
 		Grid[i][0].WestWall=1;
-		Grid[i][MAX_COLS - 1].EastWall=1;
+		Grid[i][6 - 1].EastWall=1;
 	}
-	for(j=0;j<MAX_COLS;j++){
+	for(j=0;j<6;j++){
 		Grid[0][j].SouthWall=1;
-		Grid[MAX_ROWS - 1][j].NorthWall=1;
+		Grid[4 - 1][j].NorthWall=1;
 	}
 }
 
@@ -69,8 +69,8 @@ void GridDraw(){
     int XEnd=0;
     int YEnd=0;
 
-    for(int i=0;i<MAX_ROWS;i++){
-        for(int j=0;j<MAX_COLS;j++){
+    for(int i=0;i<4;i++){
+        for(int j=0;j<6;j++){
             // Draw walls
             if(Grid[i][j].NorthWall==1){
                 XStart= j *ScreenWidth/6;
@@ -104,10 +104,10 @@ void GridDraw(){
             // Draw visited cells
             if (Grid[i][j].visited) {
                 // Draw visited cell
-                XStart = j * ScreenWidth / MAX_COLS;
-                YStart = i * ScreenHeight / MAX_ROWS;
-                XEnd = (j + 1) * ScreenWidth / MAX_COLS;
-                YEnd = (i + 1) * ScreenHeight / MAX_ROWS;
+                XStart = j * ScreenWidth / 6;
+                YStart = i * ScreenHeight / 4;
+                XEnd = (j + 1) * ScreenWidth / 6;
+                YEnd = (i + 1) * ScreenHeight / 4;
                 fillRect(XStart + 6, YStart + 6, XEnd - 6, YEnd - 6);
             }
         }

@@ -22,6 +22,7 @@ void DFSSolver();
 int GetBacktrackDirection(int currRow, int currCol, int parentRow, int parentCol);
 int CalculateTurnDirection(int currentDirection, int targetDirection);
 void AlignAndMove(int targetDirection);
+void AlignAndMoveReturn(int targetDirection);
 void DrawProgress();
 
 bool algorithmFinished = false;
@@ -121,6 +122,10 @@ void DFSSolver(){
 		                }
 		                break;
 		            }
+
+		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !wallDetected && visited[nextRow][nextCol]){
+		            	break;
+		            }
 		        	case LEFT:
         	      if (RobotDirection == 0) { nextCol = CurrentPosCol - 1; nextRow = CurrentPosRow;} // West
                 if (RobotDirection == 1) { nextRow = CurrentPosRow + 1; nextCol = CurrentPosCol;} // To North
@@ -153,6 +158,10 @@ void DFSSolver(){
 		                }
 		                break;
 		            }
+
+		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !wallDetected && visited[nextRow][nextCol]){
+		            	break;
+		            }
 		        	case RIGHT:
         	      if (RobotDirection == 0) { nextCol = CurrentPosCol + 1; nextRow = CurrentPosRow;} // Go East
                 if (RobotDirection == 1) { nextRow = CurrentPosRow - 1; nextCol = CurrentPosCol;} // Go South
@@ -184,6 +193,9 @@ void DFSSolver(){
 		                    	break;
 		                }
 		                break;
+		            }
+		            if (nextRow >= 0 && nextRow < MAX_ROWS && nextCol >= 0 && nextCol < MAX_COLS && !wallDetected && visited[nextRow][nextCol]){
+		            	break;
 		            }
 		        	default:
 		        		break;
@@ -366,14 +378,14 @@ int GetBacktrackDirection(int currRow, int currCol, int parentRow, int parentCol
     }
     if (parentCol == currCol + 1) {  // Moving back from East
         // Check if there?s a wall blocking the way
-        if (Grid[currRow][currCol].EastWall) {
+        if (Grid[currRow][currCol].WestWall) {
             return -1;  // There is a wall blocking the way
         }
         return WEST;
     }
     if (parentCol == currCol - 1) {  // Moving back from West
         // Check if there?s a wall blocking the way
-        if (Grid[parentRow][parentCol].WestWall) {
+        if (Grid[parentRow][parentCol].EastWall) {
             return -1;  // There is a wall blocking the way
         }
         return EAST;
@@ -389,7 +401,7 @@ int CalculateTurnDirection(int currentDirection, int targetDirection) {
     if (turnDirection == 1 || turnDirection == 3) {
         return (turnDirection == 1) ? LEFT : RIGHT; // Right turn if 1 step, left turn if 3 steps
     }
-    return FORWARD;  // No turn needed (0 steps)
+    return FORWARD;
 }
 
 // Move robot to face the target direction and update its position
@@ -407,6 +419,23 @@ void AlignAndMove(int targetDirection) {
     DrawProgress();
 
     MoveForward();
+
+    DrawProgress();
+}
+
+// Move robot to face the target direction and update its position
+void AlignAndMoveReturn(int targetDirection) {
+    int turnDirection = CalculateTurnDirection(RobotDirection, targetDirection);
+
+    DrawProgress();
+
+    MoveForward();
+
+    if (turnDirection == RIGHT) {
+        TurnRight();
+    } else if (turnDirection == LEFT) {
+        TurnLeft();
+    }
 
     DrawProgress();
 }
